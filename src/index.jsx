@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-const axios = require('axios');
+import axios from 'axios';
 import ProductList from './Products-list.jsx';
 // import './styles/styles.css';
 // import styled from 'styled-components';
@@ -36,7 +36,7 @@ class RelatedItems extends React.Component {
           numPages: Math.ceil(res.data.length / 7)});
       }
     })
-    .catch((res) => {
+    .catch(() => {
       console.log('error in get request');
     });
   }
@@ -59,7 +59,7 @@ class RelatedItems extends React.Component {
     }
   }
 
-  startOver(event) {
+  startOver() {
     this.setState({currentPage: 1, startOverHidden: true});
   }
 
