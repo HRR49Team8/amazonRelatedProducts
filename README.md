@@ -29,7 +29,7 @@ npm install
 ## Start mongodb locally
 
 | Request | URL                      |
-|------------------------------------|
+|---------|--------------------------|
 | GET     | /api/relatedProducts/all |
 | POST    | /api/relatedProducts/all |
 | PUT     | /api/relatedProducts/all |
