@@ -26,7 +26,7 @@ npm install
 ## Start mongodb locally
  sudo service mongod start
 
-## Start mongodb locally
+## CRUD
 
 | Request | URL                      |
 |---------|--------------------------|

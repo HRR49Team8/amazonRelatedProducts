@@ -1,6 +1,8 @@
 const bodyParser = require('body-parser');
 const express = require('express');
-const db = require('../database/database.js');
+const mongodb = require('../database/mongodb/mongodb.js');
+const cassandra = require('../database/cassandra/cassandra.js');
+const postgres = require('../database/postgres/postgres.js');
 const faker = require('faker');
 
 const app = express();
@@ -11,7 +13,7 @@ app.use(bodyParser.json());
 
 
 app.get('/api/relatedProducts/all', (req, res) => {
-  db.find({})
+  mongodb.find({})
   .then((data) => {
     if(!data) {
       throw data;
@@ -50,7 +52,7 @@ app.post('/api/relatedProducts/all', (req, res) => {
       images: 'https://fec-related-items.s3-us-west-2.amazonaws.com/bars/19.jpg',
     }
 
-    db.create(obj, (err, result) => {
+    mongodb.create(obj, (err, result) => {
       if (err) {
         res.send(err);
       } else {
@@ -72,7 +74,7 @@ app.put('/api/relatedProducts/all', (req, res) => {
   // MONGODB
   if (req.query.database === 'mongodb') {
     const query = {name: 'bob'};
-    db.findOne(query, (err, doc) => {
+    mongodb.findOne(query, (err, doc) => {
       if (err) {
         res.send(err);
       }
@@ -97,7 +99,7 @@ app.put('/api/relatedProducts/all', (req, res) => {
 app.delete('/api/relatedProducts/all', (req, res) => {
   // MONGODB
   if (req.query.database === 'mongodb') {
-    db.deleteOne({ name: 'bobby' }, (err, result) => {
+    mongodb.deleteOne({ name: 'bobby' }, (err, result) => {
       err ? res.send(err) : res.send(result);
     });
 
