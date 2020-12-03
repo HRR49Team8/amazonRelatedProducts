@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 let faker = require('faker');
-const db = require('./database.js');
+const db = require('./mongodb.js');
 
 // cleans out Mongodb
 var asyncRemove = () => {

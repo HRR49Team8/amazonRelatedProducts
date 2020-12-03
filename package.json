@@ -27,6 +27,7 @@
     "babel-loader": "^8.2.1",
     "babel-node": "0.0.1-security",
     "body-parser": "^1.19.0",
+    "cassandra-driver": "^4.6.1",
     "express": "^4.17.1",
     "faker": "^5.1.0",
     "mongodb": "^3.6.3",
