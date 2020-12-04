@@ -43,9 +43,9 @@ for (let i = 0; i <= 100; i++) {
   console.log('document ', i, ' created');
 }
 //db.dropDatabase();
+
 db.insertMany(seedData).then(() => {
   mongoose.disconnect();
 });
 
 console.log('db seeded');
-

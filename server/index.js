@@ -1,7 +1,7 @@
 const bodyParser = require('body-parser');
 const express = require('express');
 const mongodb = require('../database/mongodb/mongodb.js');
-const cassandra = require('../database/cassandra/cassandra.js');
+const neo4j = require('../database/neo4j/neo4j.js');
 const postgres = require('../database/postgres/postgres.js');
 const faker = require('faker');
 
@@ -10,7 +10,11 @@ app.use(express.static(__dirname + '/../client'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
-
+/*
+===================================
+  Original GET
+===================================
+*/
 
 app.get('/api/relatedProducts/all', (req, res) => {
   mongodb.find({})
@@ -28,30 +32,47 @@ app.get('/api/relatedProducts/all', (req, res) => {
   });
 });
 
-// app.get('/api/relatedProducts/all', (req, res) => {
-//   if (req.query.database === 'mongodb') {
-//     res.send('GET to mongodb');
-//   } else if (req.query.database === 'mysql') {
-//     res.send('GET to mysql');
-//   } else {
-//     res.send('GET to nowhere');
-//   }
-// });
+/*
+===================================
+  GET
+===================================
+*/
 
-app.post('/api/relatedProducts/all', (req, res) => {
-  console.log(req.query)
-  // MONGODB
+app.get('/api/relatedProducts', (req, res) => {
+  /*        MONGODB       */
   if (req.query.database === 'mongodb') {
-    // Fake obj
-    var obj = {
-      name: 'bob',
-      rating: Math.floor(Math.random() * Math.floor(11)),
-      numRating: faker.random.number(),
-      prime: faker.random.boolean(),
-      price: faker.commerce.price(),
-      images: 'https://fec-related-items.s3-us-west-2.amazonaws.com/bars/19.jpg',
-    }
+    res.send('GET to mongodb');
 
+  /*        POSTGRES       */
+  } else if (req.query.database === 'postgres') {
+    postgres.selectPostgres((err, result) => {
+      err ? res.send(err) : res.send(result);
+    });
+  } else {
+    res.send('GET to nowhere');
+  }
+});
+
+/*
+===================================
+  POST
+===================================
+*/
+
+app.post('/api/relatedProducts', (req, res) => {
+  /*        FAKE DATA       */
+  var obj = {
+    name: 'bob',
+    rating: 5,
+    numRatings: 706,
+    prime: true,
+    price: 427,
+    images: 'https://fec-related-items.s3-us-west-2.amazonaws.com/bars/19.jpg',
+  }
+  var objArr = ['bob', 5, 706, true, 427, 'https://fec-related-items.s3-us-west-2.amazonaws.com/bars/19.jpg'];
+
+  /*        MONGODB       */
+  if (req.query.database === 'mongodb') {
     mongodb.create(obj, (err, result) => {
       if (err) {
         res.send(err);
@@ -61,17 +82,24 @@ app.post('/api/relatedProducts/all', (req, res) => {
       }
     });
 
-  // POSTGRES
+  /*        POSTGRES       */
   } else if (req.query.database === 'postgres') {
-    res.send('POST to postgres');
+    postgres.insertPostgres(objArr, (err, result) => {
+      err ? res.send(err) : res.send(result);
+    });
   } else {
     res.send('POST to nowhere');
   }
 })
 
-app.put('/api/relatedProducts/all', (req, res) => {
+/*
+===================================
+  PUT
+===================================
+*/
 
-  // MONGODB
+app.put('/api/relatedProducts', (req, res) => {
+  /*        MONGODB       */
   if (req.query.database === 'mongodb') {
     const query = {name: 'bob'};
     mongodb.findOne(query, (err, doc) => {
@@ -88,28 +116,42 @@ app.put('/api/relatedProducts/all', (req, res) => {
         }
       });
     })
-  // POSTGRES
+
+  /*        POSTGRES       */
   } else if (req.query.database === 'postgres') {
-    res.send('PUT to postgres');
+    postgres.updatePostgres('bobby', 'bob', (err, result) => {
+      err ? res.send(err) : res.send(result);
+    })
   } else {
     res.send('PUT to nowhere');
   }
 });
 
-app.delete('/api/relatedProducts/all', (req, res) => {
-  // MONGODB
+/*
+===================================
+  DELETE
+===================================
+*/
+
+app.delete('/api/relatedProducts', (req, res) => {
+  /*        MONGODB       */
   if (req.query.database === 'mongodb') {
     mongodb.deleteOne({ name: 'bobby' }, (err, result) => {
       err ? res.send(err) : res.send(result);
     });
 
-  // POSTGRESS
+  /*        POSTGRES       */
   } else if (req.query.database === 'postgres') {
-    res.send('DELETE to postgres');
+    postgres.deletePostgres((err, result) => {
+      err ? res.send(err) : res.send(result);
+    });
   } else {
     res.send('DELETE to nowhere');
   }
 });
+
+
+
 
 let port = 3003;
 
