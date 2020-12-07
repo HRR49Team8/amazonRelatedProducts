@@ -63,11 +63,12 @@ app.post('/api/relatedProducts', (req, res) => {
   /*        FAKE DATA       */
   var obj = {
     name: 'bob',
+    product_id: 1,
     rating: 5,
     numRatings: 706,
     prime: true,
-    price: 427,
-    images: 'https://fec-related-items.s3-us-west-2.amazonaws.com/bars/19.jpg',
+    price: 427.00,
+    images: ['https://fec-related-items.s3-us-west-2.amazonaws.com/bars/19.jpg', 'https://fec-related-items.s3-us-west-2.amazonaws.com/bars/19.jpg', 'https://fec-related-items.s3-us-west-2.amazonaws.com/bars/19.jpg'],
   }
   var objArr = ['bob', 5, 706, true, 427, 'https://fec-related-items.s3-us-west-2.amazonaws.com/bars/19.jpg'];
 
@@ -87,6 +88,11 @@ app.post('/api/relatedProducts', (req, res) => {
     postgres.insertPostgres(objArr, (err, result) => {
       err ? res.send(err) : res.send(result);
     });
+
+  /*        NEO4J       */
+  } else if (req.query.database === 'neo4j') {
+    neo4j.testWrite(obj);
+    res.send('POST to NEO4J')
   } else {
     res.send('POST to nowhere');
   }

@@ -9,7 +9,7 @@ let s3Images = [];
 for (let i = 0; i < numImgs; i++) {
   s3Images.push(`https://fec-related-items.s3-us-west-2.amazonaws.com/bars/${i}.jpg`);
 }
-// CREATE PRODUCT WRITER
+// CREATE PRODUCT WRITE
 const imageWrite = fs.createWriteStream('database/csv/productsImages.csv');
 // WRITE THE HEADERS
 imageWrite.write('product_id,image1,image2,image3\n', 'utf8');

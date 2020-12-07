@@ -10,7 +10,7 @@ postgres.connect();
 
 const selectPostgres = (callback) => {
   const selectString = `SELECT * FROM product
-                        WHERE product_id = 4`;
+                        WHERE product_id = 10141`;
   postgres.query(selectString, (err, result) => {
     err ? callback(err.stack) : callback(result.rows[0]);
   });
