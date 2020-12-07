@@ -41,32 +41,16 @@ instance.model('product', {
   },
 })
 
-const testWrite = (obj) => { // name, rating, numRatings, prime, price, images
-  instance.create('product', {
-    name: obj.name,
-    rating: obj.rating,
-    numRatings: obj.numRatings,
-    prime: obj.prime,
-    price: obj.price,
-    images: obj.images,
-  })
-  .then(item => {
-      console.log(item.get('name'));
-  })
-  .catch(err => console.log(err));
-}
-
 const batching = (arr) => {
   instance.batch(arr)
   .then(res => {
     console.log('loaded into neo4j');
   })
   .catch(err => console.log(err));
-  // instance.create('product', obj)
-  // .then(() => {})
-  // .catch(err => console.error(err));
-}
+};
+
+
 
 module.exports = {
-  testWrite, batching, instance
+  batching, instance
 };

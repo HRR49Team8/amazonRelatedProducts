@@ -48,9 +48,36 @@ app.get('/api/relatedProducts', (req, res) => {
     postgres.selectPostgres((err, result) => {
       err ? res.send(err) : res.send(result);
     });
-  } else {
-    res.send('GET to nowhere');
-  }
+
+  /*         NEO4J          */
+  } else if (req.query.database === 'neo4j') {
+    /*       Cypher Version - faster         */
+    neo4j.instance.cypher('MATCH (p:product {product_id: $product_id}) RETURN p', {product_id: 10000001})
+    .then(result => {
+      // console.log(res)
+      res.send(result.records[0]._fields[0].properties);
+    })
+    .catch((err) => console.log(err));
+
+    /*       All Version - slower        */
+    // neo4j.instance.all('product', {product_id: 10000001})
+    // .then(collection => {
+    //   let node = {
+    //     name: collection.get(0).get('name'),
+    //     product_id: collection.get(0).get('product_id'),
+    //     rating: collection.get(0).get('rating'),
+    //     numRatings: collection.get(0).get('numRatings'),
+    //     prime: collection.get(0).get('prime'),
+    //     price: collection.get(0).get('price'),
+    //     images: collection.get(0).get('images'),
+    //   };
+    //   res.send(node); // 'bob'
+    // })
+    // .catch((err) => res.send(err));
+    } else {
+      res.send('GET to nowhere');
+    }
+
 });
 
 /*
@@ -63,7 +90,7 @@ app.post('/api/relatedProducts', (req, res) => {
   /*        FAKE DATA       */
   var obj = {
     name: 'bob',
-    product_id: 1,
+    product_id: 10000001,
     rating: 5,
     numRatings: 706,
     prime: true,
@@ -91,8 +118,27 @@ app.post('/api/relatedProducts', (req, res) => {
 
   /*        NEO4J       */
   } else if (req.query.database === 'neo4j') {
-    neo4j.testWrite(obj);
-    res.send('POST to NEO4J')
+    neo4j.instance.create('product', {
+      name: obj.name,
+      product_id: obj.product_id,
+      rating: obj.rating,
+      numRatings: obj.numRatings,
+      prime: obj.prime,
+      price: obj.price,
+      images: obj.images,
+    })
+    .then(item => {
+      let node = {
+        name: item.get('name'),
+        product_id: item.get('product_id'),
+        rating: item.get('rating'),
+        numRatings: item.get('numRatings'),
+        prime: item.get('prime'),
+        price: item.get('price'),
+        images: item.get('images'),
+      };
+      res.send(node)})
+    .catch(err => console.log(err));
   } else {
     res.send('POST to nowhere');
   }
