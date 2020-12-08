@@ -1,7 +1,8 @@
 const bodyParser = require('body-parser');
 const express = require('express');
 const mongodb = require('../database/mongodb/mongodb.js');
-const neo4j = require('../database/neo4j/neo4j.js');
+// const neo4j = require('../database/neo4j/neo4j.js');
+const neoDriver = require('../database/neo4j/neo4jDriver.js');
 const postgres = require('../database/postgres/postgres.js');
 const faker = require('faker');
 
@@ -51,13 +52,22 @@ app.get('/api/relatedProducts', (req, res) => {
 
   /*         NEO4J          */
   } else if (req.query.database === 'neo4j') {
-    /*       Cypher Version - faster         */
-    neo4j.instance.cypher('MATCH (p:product {product_id: $product_id}) RETURN p', {product_id: 10000001})
-    .then(result => {
-      // console.log(res)
-      res.send(result.records[0]._fields[0].properties);
-    })
-    .catch((err) => console.log(err));
+    neoDriver.session
+      .run('MATCH (p:product {product_id: $product_id}) RETURN p', {product_id: 10000001})
+      .then(result => {
+        result.records.forEach(record => {
+          res.send(record._fields[0].properties);
+        })
+      })
+      .catch((err) => console.log(err));
+
+    // /*       Cypher Version - faster         */
+    // neo4j.instance.cypher('MATCH (p:product {product_id: $product_id}) RETURN p', {product_id: 10000001})
+    // .then(result => {
+    //   // console.log(res)
+    //   res.send(result.records[0]._fields[0].properties);
+    // })
+    // .catch((err) => console.log(err));
 
     /*       All Version - slower        */
     // neo4j.instance.all('product', {product_id: 10000001})
@@ -118,27 +128,42 @@ app.post('/api/relatedProducts', (req, res) => {
 
   /*        NEO4J       */
   } else if (req.query.database === 'neo4j') {
-    neo4j.instance.create('product', {
-      name: obj.name,
-      product_id: obj.product_id,
-      rating: obj.rating,
-      numRatings: obj.numRatings,
-      prime: obj.prime,
-      price: obj.price,
-      images: obj.images,
-    })
-    .then(item => {
-      let node = {
-        name: item.get('name'),
-        product_id: item.get('product_id'),
-        rating: item.get('rating'),
-        numRatings: item.get('numRatings'),
-        prime: item.get('prime'),
-        price: item.get('price'),
-        images: item.get('images'),
-      };
-      res.send(node)})
-    .catch(err => console.log(err));
+    neoDriver.session
+      .run(`CREATE (p:product {name: $name, product_id: $product_id, rating: $rating, numRatings: $numRatings, prime: $prime, price: $price, images: $images}) RETURN p`, {
+        name: obj.name,
+        product_id: obj.product_id,
+        rating: obj.rating,
+        numRatings: obj.numRatings,
+        prime: obj.prime,
+        price: obj.price,
+        images: obj.images,
+      })
+      .then(result => {
+        res.send(result.records[0]._fields[0].properties);
+      })
+      .catch((err) => console.log(err));
+
+    // neo4j.instance.create('product', {
+    //   name: obj.name,
+    //   product_id: obj.product_id,
+    //   rating: obj.rating,
+    //   numRatings: obj.numRatings,
+    //   prime: obj.prime,
+    //   price: obj.price,
+    //   images: obj.images,
+    // })
+    // .then(item => {
+    //   let node = {
+    //     name: item.get('name'),
+    //     product_id: item.get('product_id'),
+    //     rating: item.get('rating'),
+    //     numRatings: item.get('numRatings'),
+    //     prime: item.get('prime'),
+    //     price: item.get('price'),
+    //     images: item.get('images'),
+    //   };
+    //   res.send(node)})
+    // .catch(err => console.log(err));
   } else {
     res.send('POST to nowhere');
   }
@@ -174,6 +199,25 @@ app.put('/api/relatedProducts', (req, res) => {
     postgres.updatePostgres('bobby', 'bob', (err, result) => {
       err ? res.send(err) : res.send(result);
     })
+
+  /*        NEO4J          */
+  } else if (req.query.database === 'neo4j') {
+    const newPrice = 12.00;
+    neo4j.instance.cypher(`MATCH (p:product {product_id: $product_id}) SET p.price = ${newPrice} RETURN p`, {product_id: 10000001})
+    .then(item => {
+      res.send(item.records[0]._fields[0].properties);
+      // let node = {
+      //   name: item.get('name'),
+      //   product_id: item.get('product_id'),
+      //   rating: item.get('rating'),
+      //   numRatings: item.get('numRatings'),
+      //   prime: item.get('prime'),
+      //   price: item.get('price'),
+      //   images: item.get('images'),
+      // };
+      // res.send(node);
+    })
+    .catch((err) => console.error(err));
   } else {
     res.send('PUT to nowhere');
   }
