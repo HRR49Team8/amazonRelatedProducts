@@ -202,10 +202,14 @@ app.put('/api/relatedProducts', (req, res) => {
 
   /*        NEO4J          */
   } else if (req.query.database === 'neo4j') {
-    const newPrice = 12.00;
-    neo4j.instance.cypher(`MATCH (p:product {product_id: $product_id}) SET p.price = ${newPrice} RETURN p`, {product_id: 10000001})
-    .then(item => {
-      res.send(item.records[0]._fields[0].properties);
+    const newPrice = 14.00;
+    neoDriver.session
+      .run(`MATCH (p:product {product_id: $product_id}) SET p.price = toFloat(${newPrice}) RETURN p`, {product_id: 10000001})
+      .then(result => {
+        console.log(result.records[0]._fields[0].properties)
+        res.json(result.records[0]._fields[0].properties);
+      })
+      .catch((err) => console.log('212 ', err));
       // let node = {
       //   name: item.get('name'),
       //   product_id: item.get('product_id'),
@@ -216,8 +220,6 @@ app.put('/api/relatedProducts', (req, res) => {
       //   images: item.get('images'),
       // };
       // res.send(node);
-    })
-    .catch((err) => console.error(err));
   } else {
     res.send('PUT to nowhere');
   }
