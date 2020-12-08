@@ -5,7 +5,7 @@ console.log('seeding csv ...');
 // CREATE PRODUCT WRITE
 const productWrite = fs.createWriteStream('database/csv/products.csv');
 // WRITE THE HEADERS
-productWrite.write('product_id,name,rating,numRatings,prime,price\n', 'utf8');
+productWrite.write('name,rating,numRatings,prime,price\n', 'utf8');
 // WRITE THE DATA
 for (let i = 1; i <= 10000000; i++) {
   var obj = {};
@@ -14,5 +14,5 @@ for (let i = 1; i <= 10000000; i++) {
   obj.numRatings = faker.random.number();
   obj.prime = faker.random.boolean();
   obj.price = faker.commerce.price();
-  productWrite.write(`${i},${obj.name},${obj.rating},${obj.numRatings},${obj.prime},${obj.price}\n`,'utf8');
+  productWrite.write(`${obj.name},${obj.rating},${obj.numRatings},${obj.prime},${obj.price}\n`,'utf8');
 }

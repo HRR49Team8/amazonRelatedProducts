@@ -60,30 +60,6 @@ app.get('/api/relatedProducts', (req, res) => {
         })
       })
       .catch((err) => console.log(err));
-
-    // /*       Cypher Version - faster         */
-    // neo4j.instance.cypher('MATCH (p:product {product_id: $product_id}) RETURN p', {product_id: 10000001})
-    // .then(result => {
-    //   // console.log(res)
-    //   res.send(result.records[0]._fields[0].properties);
-    // })
-    // .catch((err) => console.log(err));
-
-    /*       All Version - slower        */
-    // neo4j.instance.all('product', {product_id: 10000001})
-    // .then(collection => {
-    //   let node = {
-    //     name: collection.get(0).get('name'),
-    //     product_id: collection.get(0).get('product_id'),
-    //     rating: collection.get(0).get('rating'),
-    //     numRatings: collection.get(0).get('numRatings'),
-    //     prime: collection.get(0).get('prime'),
-    //     price: collection.get(0).get('price'),
-    //     images: collection.get(0).get('images'),
-    //   };
-    //   res.send(node); // 'bob'
-    // })
-    // .catch((err) => res.send(err));
     } else {
       res.send('GET to nowhere');
     }
@@ -107,7 +83,12 @@ app.post('/api/relatedProducts', (req, res) => {
     price: 427.00,
     images: ['https://fec-related-items.s3-us-west-2.amazonaws.com/bars/19.jpg', 'https://fec-related-items.s3-us-west-2.amazonaws.com/bars/19.jpg', 'https://fec-related-items.s3-us-west-2.amazonaws.com/bars/19.jpg'],
   }
-  var objArr = ['bob', 5, 706, true, 427, 'https://fec-related-items.s3-us-west-2.amazonaws.com/bars/19.jpg'];
+  const productArr = ['bob', 5, 706, true, 427];
+  const imageArr = [
+    'https://fec-related-items.s3-us-west-2.amazonaws.com/bars/19.jpg',
+    'https://fec-related-items.s3-us-west-2.amazonaws.com/bars/16.jpg',
+    'https://fec-related-items.s3-us-west-2.amazonaws.com/bars/14.jpg'
+  ]
 
   /*        MONGODB       */
   if (req.query.database === 'mongodb') {
@@ -122,8 +103,8 @@ app.post('/api/relatedProducts', (req, res) => {
 
   /*        POSTGRES       */
   } else if (req.query.database === 'postgres') {
-    postgres.insertPostgres(objArr, (err, result) => {
-      err ? res.send(err) : res.send(result);
+    postgres.insertPostgres(productArr, imageArr, (err, result) => {
+      err ? res.send(err) : res.send(`${result.rowCount} row added`);
     });
 
   /*        NEO4J       */
@@ -142,28 +123,6 @@ app.post('/api/relatedProducts', (req, res) => {
         res.send(result.records[0]._fields[0].properties);
       })
       .catch((err) => console.log(err));
-
-    // neo4j.instance.create('product', {
-    //   name: obj.name,
-    //   product_id: obj.product_id,
-    //   rating: obj.rating,
-    //   numRatings: obj.numRatings,
-    //   prime: obj.prime,
-    //   price: obj.price,
-    //   images: obj.images,
-    // })
-    // .then(item => {
-    //   let node = {
-    //     name: item.get('name'),
-    //     product_id: item.get('product_id'),
-    //     rating: item.get('rating'),
-    //     numRatings: item.get('numRatings'),
-    //     prime: item.get('prime'),
-    //     price: item.get('price'),
-    //     images: item.get('images'),
-    //   };
-    //   res.send(node)})
-    // .catch(err => console.log(err));
   } else {
     res.send('POST to nowhere');
   }
@@ -196,8 +155,8 @@ app.put('/api/relatedProducts', (req, res) => {
 
   /*        POSTGRES       */
   } else if (req.query.database === 'postgres') {
-    postgres.updatePostgres('bobby', 'bob', (err, result) => {
-      err ? res.send(err) : res.send(result);
+    postgres.updatePostgres((err, result) => {
+      err ? res.send(err) : res.end(`${result.rowCount} row updated`);
     })
 
   /*        NEO4J          */
@@ -206,20 +165,9 @@ app.put('/api/relatedProducts', (req, res) => {
     neoDriver.session
       .run(`MATCH (p:product {product_id: $product_id}) SET p.price = toFloat(${newPrice}) RETURN p`, {product_id: 10000001})
       .then(result => {
-        console.log(result.records[0]._fields[0].properties)
         res.json(result.records[0]._fields[0].properties);
       })
       .catch((err) => console.log('212 ', err));
-      // let node = {
-      //   name: item.get('name'),
-      //   product_id: item.get('product_id'),
-      //   rating: item.get('rating'),
-      //   numRatings: item.get('numRatings'),
-      //   prime: item.get('prime'),
-      //   price: item.get('price'),
-      //   images: item.get('images'),
-      // };
-      // res.send(node);
   } else {
     res.send('PUT to nowhere');
   }
@@ -241,7 +189,7 @@ app.delete('/api/relatedProducts', (req, res) => {
   /*        POSTGRES       */
   } else if (req.query.database === 'postgres') {
     postgres.deletePostgres((err, result) => {
-      err ? res.send(err) : res.send(result);
+      err ? res.send(err) : res.send('DELETE successful');
     });
 
   /*        NEO4J          */

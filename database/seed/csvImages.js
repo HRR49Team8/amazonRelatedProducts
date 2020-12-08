@@ -12,12 +12,13 @@ for (let i = 0; i < numImgs; i++) {
 // CREATE PRODUCT WRITE
 const imageWrite = fs.createWriteStream('database/csv/productsImages.csv');
 // WRITE THE HEADERS
-imageWrite.write('product_id,image1,image2,image3\n', 'utf8');
+imageWrite.write('image1,image2,image3\n', 'utf8');
 // WRITE THE DATA
 for (let i = 1; i <= 10000000; i++) {
   var obj = {};
   obj.image1 = s3Images[Math.floor(Math.random() * numImgs)];
   obj.image2 = s3Images[Math.floor(Math.random() * numImgs)];
   obj.image3 = s3Images[Math.floor(Math.random() * numImgs)];
-  imageWrite.write(`${i},${obj.image1},${obj.image2},${obj.image3}\n`,'utf8');
+  let result = imageWrite.write(`${obj.image1},${obj.image2},${obj.image3}\n`,'utf8');
 }
+
