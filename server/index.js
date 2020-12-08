@@ -243,6 +243,16 @@ app.delete('/api/relatedProducts', (req, res) => {
     postgres.deletePostgres((err, result) => {
       err ? res.send(err) : res.send(result);
     });
+
+  /*        NEO4J          */
+  } else if (req.query.database === 'neo4j') {
+    const id = 10000001;
+    neoDriver.session
+    .run('MATCH(n:product {product_id: $product_id}) DETACH DELETE n', {product_id: id})
+    .then(result => {
+      res.end(`product_id: ${id} DELETED`)
+    })
+    .catch((err) => console.log(err));
   } else {
     res.send('DELETE to nowhere');
   }
