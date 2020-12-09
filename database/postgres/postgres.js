@@ -28,14 +28,29 @@ const postgres = new Client({
 postgres.connect();
 
 const selectPostgres = (callback) => {
+  let results;
+  const id = 100;
+  const selectProduct = `SELECT * FROM product
+                         WHERE id = $1`;
+  const selectImages = `SELECT * FROM images
+                        WHERE product_id = $1`;
+  postgres.query(selectProduct, [id], (err, product) => {
+    if (err) {
+      callback(err.stack);
+    } else {
+      results = product.rows[0];
+      results.images = [];
+      postgres.query(selectImages, [id], (err, images) => {
+        images.rows.map((i)=> {
+          results.images.push(i.image)
+        });
+        /*  might remove later  */
+        results.price = Number(results.price);
 
-  const selectString = `SELECT *
-                        FROM product p
-                        INNER JOIN images i
-                        ON p.id = i.id
-                        WHERE p.id = 10141`;
-  postgres.query(selectString, (err, result) => {
-    err ? callback(err.stack) : callback(result.rows[0]);
+        const final = [results]
+        callback(final)
+      });
+    }
   });
 };
 

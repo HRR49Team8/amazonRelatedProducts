@@ -18,21 +18,25 @@ app.use(bodyParser.json());
 */
 
 app.get('/api/relatedProducts/all', (req, res) => {
-  mongodb.find({})
-  .then((data) => {
-    if(!data) {
-      throw data;
-    } else {
-      console.log('mongodb data accessed');
-      res.status(200).send(data);
-    }
-  })
-  .catch(() => {
-    console.log('error in api call');
-    res.send('error getting data');
-  });
-});
+  // mongodb.find({})
+  // .then((data) => {
+  //   if(!data) {
+  //     throw data;
+  //   } else {
+  //     console.log('mongodb data accessed');
+  //     res.status(200).send(data);
+  //   }
+  // })
+  // .catch(() => {
+  //   console.log('error in api call');
+  //   res.send('error getting data');
+  // });
 
+  postgres.selectPostgres((err, result) => {
+    err ? res.send(err) : res.send([result]);
+  });
+
+});
 /*
 ===================================
   GET
