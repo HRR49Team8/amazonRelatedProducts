@@ -55,6 +55,7 @@ const selectPostgres = (callback) => {
 };
 
 const insertPostgres = (product, images, callback) => {
+  let productId;
   pool.connect((err, client, done) => {
 
     // BEGIN; QUERY
@@ -65,10 +66,12 @@ const insertPostgres = (product, images, callback) => {
       const productQuery = 'INSERT INTO product(name, rating, numRatings, prime, price) VALUES($1, $2, $3, $4, $5) RETURNING id';
       client.query(productQuery, product, (err, res) => {
         if (shouldAbort(err)) return;
+        productId = res.rows[0].id;
 
         // INSERT INTO images...
-        const imageQuery = 'INSERT INTO images (image1, image2, image3,id) VALUES($1, $2, $3, $4)';
+        const imageQuery = 'INSERT INTO images (image, product_id) VALUES ($1, $4), ($2, $4), ($3, $4)';
         const imagesValues = images.concat([res.rows[0].id]);
+        console.log([images[0], productId]);
         client.query(imageQuery, imagesValues, (err, res) => {
           if (shouldAbort(err)) return;
 
