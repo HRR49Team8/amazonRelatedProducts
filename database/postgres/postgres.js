@@ -105,7 +105,7 @@ const deletePostgres = (callback) => {
       if (shouldAbort(err)) return
 
       // DELETE IMAGES
-      const deleteImages = `DELETE FROM images WHERE id > 10000000`;
+      const deleteImages = `DELETE FROM images WHERE product_id > 10000000`;
       client.query(deleteImages, (err, res) => {
         if (shouldAbort(err)) return
 
