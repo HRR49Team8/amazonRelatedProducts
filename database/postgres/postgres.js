@@ -30,16 +30,16 @@ postgres.connect();
 const selectPostgres = (callback) => {
   let results;
   const id = 100;
-  const selectProduct = `SELECT * FROM product
-                         WHERE id = $1`;
-  const selectImages = `SELECT * FROM images
-                        WHERE product_id = $1`;
+  const selectProduct = `SELECT * FROM product WHERE id = $1`;
+  const selectImages = `SELECT * FROM images WHERE product_id = $1`;
+
   postgres.query(selectProduct, [id], (err, product) => {
     if (err) {
       callback(err.stack);
     } else {
       results = product.rows[0];
       results.images = [];
+
       postgres.query(selectImages, [id], (err, images) => {
         images.rows.map((i)=> {
           results.images.push(i.image)
@@ -71,7 +71,6 @@ const insertPostgres = (product, images, callback) => {
         // INSERT INTO images...
         const imageQuery = 'INSERT INTO images (image, product_id) VALUES ($1, $4), ($2, $4), ($3, $4)';
         const imagesValues = images.concat([res.rows[0].id]);
-        console.log([images[0], productId]);
         client.query(imageQuery, imagesValues, (err, res) => {
           if (shouldAbort(err)) return;
 
