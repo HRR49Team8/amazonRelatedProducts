@@ -7,7 +7,7 @@ const pool = new Pool({
 });
 
 // STOPS A TRANSACTION IF IT RUNS INTO AN ERROR
-const shouldAbbort = (err) => {
+const shouldAbort = (err) => {
   if (err) {
     console.error('Error in transaction', err.stack);
     client.query('ROLLBACK', (err) => {
@@ -44,18 +44,18 @@ const insertPostgres = (product, images, callback) => {
 
     // BEGIN; QUERY
     client.query('BEGIN', (err, res) => {
-      if (shouldAbbort(err)) return
+      if (shouldAbort(err)) return
 
       // INSERT INTO products...
       const productQuery = 'INSERT INTO product(name, rating, numRatings, prime, price) VALUES($1, $2, $3, $4, $5) RETURNING id';
       client.query(productQuery, product, (err, res) => {
-        if (shouldAbbort(err)) return;
+        if (shouldAbort(err)) return;
 
         // INSERT INTO images...
         const imageQuery = 'INSERT INTO images (image1, image2, image3,id) VALUES($1, $2, $3, $4)';
         const imagesValues = images.concat([res.rows[0].id]);
         client.query(imageQuery, imagesValues, (err, res) => {
-          if (shouldAbbort(err)) return;
+          if (shouldAbort(err)) return;
 
           // COMMIT...
           client.query('COMMIT', (err) => {
@@ -84,17 +84,17 @@ const deletePostgres = (callback) => {
 
     // BEGIN; QUERY
     client.query('BEGIN', (err, res) => {
-      if (shouldAbbort(err)) return
+      if (shouldAbort(err)) return
 
       // DELETE IMAGES
       const deleteImages = `DELETE FROM images WHERE id > 10000000`;
       client.query(deleteImages, (err, res) => {
-        if (shouldAbbort(err)) return
+        if (shouldAbort(err)) return
 
         // DELETE PRODUCTS
         const deleteProduct = `DELETE FROM product WHERE id > 10000000`;
         client.query(deleteProduct, (err, res) => {
-          if (shouldAbbort(err)) return
+          if (shouldAbort(err)) return
 
           // COMMIT
           client.query('COMMIT', (err, res) => {

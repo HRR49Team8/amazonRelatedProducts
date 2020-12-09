@@ -14,11 +14,11 @@ CREATE TABLE product (
 );
 
 CREATE TABLE images (
-    image1 VARCHAR (250) NOT NULL,
-    image2 VARCHAR (250) NOT NULL,
-    image3 VARCHAR (250) NOT NULL,
+    product_id INT NOT NULL,
+    image VARCHAR (250) NOT NULL,
     id SERIAL,
-    FOREIGN KEY (id)
+    PRIMARY KEY (id),
+    FOREIGN KEY (product_id)
         REFERENCES product(id)
 );
 
@@ -26,6 +26,11 @@ COPY product(name,rating,numRatings,prime,price)
 FROM '/Users/matt/sdc/amazonRelatedProducts/database/csv/products.csv'
 DELIMITER ',' CSV HEADER;
 
-COPY images(image1,image2,image3)
+COPY images(product_id,image)
 FROM '/Users/matt/sdc/amazonRelatedProducts/database/csv/productsImages.csv'
 DELIMITER ',' CSV HEADER;
+
+CREATE INDEX ON images (product_id);
+
+-- psql postgres < database/postgres/postgres.sql
+-- psql related_products
