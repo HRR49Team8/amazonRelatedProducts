@@ -1,3 +1,4 @@
+require('newrelic');
 const bodyParser = require('body-parser');
 const express = require('express');
 const mongodb = require('../database/mongodb/mongodb.js');
@@ -5,11 +6,16 @@ const mongodb = require('../database/mongodb/mongodb.js');
 const neoDriver = require('../database/neo4j/neo4jDriver.js');
 const postgres = require('../database/postgres/postgres.js');
 const faker = require('faker');
+const path = require('path');
 
 const app = express();
 app.use(express.static(__dirname + '/../client'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+app.get('/:id', (req, res) => {
+  res.sendFile(path.join(__dirname, '../client/index.html'));
+});
 
 /*
 ===================================
@@ -17,24 +23,48 @@ app.use(bodyParser.json());
 ===================================
 */
 
-app.get('/api/relatedProducts/all', (req, res) => {
-  mongodb.find({})
-  .then((data) => {
-    if(!data) {
-      throw data;
-    } else {
-      console.log('mongodb data accessed');
-      res.status(200).send(data);
-    }
-  })
-  .catch(() => {
-    console.log('error in api call');
-    res.send('error getting data');
-  });
+app.get('/api/relatedProducts/all/:id', (req, res) => {
+  // mongodb.find({})
+  // .then((data) => {
+  //   if(!data) {
+  //     throw data;
+  //   } else {
+  //     console.log('mongodb data accessed');
+  //     res.status(200).send(data);
+  //   }
+  // })
+  // .catch(() => {
+  //   console.log('error in api call');
+  //   res.send('error getting data');
+  // });
 
   // postgres.selectPostgres((err, result) => {
   //   err ? res.send(err) : res.send(result);
   // });
+
+  // const range = [0, 100];
+  // neoDriver.session
+  //   .run(`MATCH (p:Product) WHERE p.id > ${range[0]} and p.id < ${range[1]} RETURN p`)
+  //   .then(result => {
+  //     let allResults = [];
+  //     result.records.forEach(record => {
+  //       allResults.push(record._fields[0].properties);
+  //     })
+  //     res.send(allResults);
+  //   })
+  //   .catch((err) => console.log(err));
+    console.log(req.params.id);
+    neoDriver.session
+    .run(`MATCH (p:Product {id:${req.params.id}})--(RELATED)
+    RETURN RELATED`)
+    .then(result => {
+      let allResults = [];
+      result.records.forEach(record => {
+        allResults.push(record._fields[0].properties);
+      })
+      res.send(allResults);
+    })
+    .catch((err) => console.log(err));
 
 });
 /*
@@ -56,12 +86,16 @@ app.get('/api/relatedProducts', (req, res) => {
 
   /*         NEO4J          */
   } else if (req.query.database === 'neo4j') {
+    const range = 10000;
+
     neoDriver.session
-      .run('MATCH (p:product {product_id: $product_id}) RETURN p', {product_id: 10000001})
+      .run(`MATCH (p:Product) WHERE p.id = ${range} RETURN p`)
       .then(result => {
+        let allResults = [];
         result.records.forEach(record => {
-          res.send(record._fields[0].properties);
+          allResults.push(record._fields[0].properties);
         })
+        res.send(allResults);
       })
       .catch((err) => console.log(err));
     } else {
@@ -114,7 +148,7 @@ app.post('/api/relatedProducts', (req, res) => {
   /*        NEO4J       */
   } else if (req.query.database === 'neo4j') {
     neoDriver.session
-      .run(`CREATE (p:product {name: $name, product_id: $product_id, rating: $rating, numRatings: $numRatings, prime: $prime, price: $price, images: $images}) RETURN p`, {
+      .run(`CREATE (p:Product {name: $name, product_id: $product_id, rating: $rating, numRatings: $numRatings, prime: $prime, price: $price, images: $images}) RETURN p`, {
         name: obj.name,
         product_id: obj.product_id,
         rating: obj.rating,

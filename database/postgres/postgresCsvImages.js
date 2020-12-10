@@ -56,4 +56,4 @@ let i = 1;
 
 })();
 
-/*  node --max-old-space-size=1024 database/seed/csvImages.js  */
+/*  node database/seed/postgresCsvImages.js  */

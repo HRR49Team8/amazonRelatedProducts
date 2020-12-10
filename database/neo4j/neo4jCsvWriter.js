@@ -1,10 +1,9 @@
-
 /*
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
           THIS WRITES 10,000,000 RANDOM NODES TO A CSV
           --------------------------------------------
 
-  node --max-old-space-size=8192 database/neo4j/neo4jCsvWriter.js
+          node database/neo4j/neo4jCsvWriter.js
                   ^  in the terminal  ^
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 */
@@ -14,7 +13,7 @@ const fs = require('fs');
 
 console.log('Seeding neo4j.csv...');
 
-const endPath = 'database/csv/neo4j.csv';
+const endPath = 'database/csv/neo4jRelated1.csv';
 
 try {
   if (fs.existsSync(endPath)) {
@@ -50,20 +49,23 @@ const createNode = () => {
 /*      WRITER FUNCTIONS      */
 const neo4jWrite = fs.createWriteStream(endPath);
 // WRITE THE HEADERS
-neo4jWrite.write('name,rating,numRatings,prime,price,image\n', 'utf8');
+neo4jWrite.write('id,name,rating,numRatings,prime,price,image,type\n', 'utf8');
 
 /*      LOOP OF DEATH      */
 
   let i = 1;
+  let type = 1;
   (async () => {
-    while (i <= 10000000) {
+    while (i <= 1000000) {
       //RANDOM NODE
-
       const obj = createNode();
-      if (!neo4jWrite.write(`${obj.name},${obj.rating},${obj.numRatings},${obj.prime},${obj.price},${obj.image1}|${obj.image2}|${obj.image3}\n`,'utf8')) {
+      if (!neo4jWrite.write(`${i},${obj.name},${obj.rating},${obj.numRatings},${obj.prime},${obj.price},${obj.image1}|${obj.image2}|${obj.image3},${type}\n`,'utf8')) {
         await new Promise(resolve => neo4jWrite.once('drain', resolve));
       }
-      if (i % 100000 === 0) {
+      if (i % 10 === 0) {
+        type++;
+      }
+      if(i % 1_000_000 === 0) {
         console.log(`${i} records written`)
       }
       i++;

@@ -1,3 +1,4 @@
+
 import React from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
@@ -14,10 +15,6 @@ class RelatedItems extends React.Component {
       currentPage: 1,
       numPages: 0,
       startOverHidden: true
-      // windowWidth: window.innerWidth
-      // come back to if > 1100px display 5 items,
-      // > 1200 px => 6 items, >1300px => 7
-      // update numPages to match the change
     };
   }
 
@@ -26,7 +23,13 @@ class RelatedItems extends React.Component {
   }
 
   getData() {
-    axios.get('/api/relatedProducts/all')
+    //LAST NUMBER OF URL IS ID
+    var id = window.location.pathname.split('/');
+    id = id[id.length - 1];
+    if (id.length === 0) {
+      id = 67;
+    }
+    axios.get(`/api/relatedProducts/all/${id}`)
     .then((res) => {
       if (!res) {
         throw res;

@@ -38,12 +38,15 @@ let i = 1;
     const obj = randomNode();
 
     if (!productWrite.write(`${obj.name},${obj.rating},${obj.numRatings},${obj.prime},${obj.price}\n`,'utf8')) {
+
       await new Promise(resolve => productWrite.once('drain', resolve))
+
     };
+
     if (i % 100000 === 0) {
       console.log(`${i} records written`)
     }
   }
 })();
 
-/*  node --max-old-space-size=1024 database/seed/csvProduct.js    */
+/*  node database/seed/postgresCsvProduct.js    */
