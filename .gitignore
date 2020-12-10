@@ -4,3 +4,6 @@ package-lock.json
 bundle.js
 tokens.js
 database/csv
+newrelic.js
+newrelic_agent.log
+.DS_Store
