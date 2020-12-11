@@ -49,6 +49,7 @@
     "webpack-cli": "^4.2.0"
   },
   "devDependencies": {
+    "artillery": "^1.6.1",
     "css-grid": "^1.0.7",
     "css-loader": "^5.0.1",
     "eslint": "^7.14.0",

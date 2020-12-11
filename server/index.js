@@ -53,7 +53,6 @@ app.get('/api/relatedProducts/all/:id', (req, res) => {
   //     res.send(allResults);
   //   })
   //   .catch((err) => console.log(err));
-    console.log(req.params.id);
     neoDriver.session
     .run(`MATCH (p:Product {id:${req.params.id}})--(RELATED)
     RETURN RELATED`)
