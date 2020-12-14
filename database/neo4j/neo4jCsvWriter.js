@@ -13,7 +13,7 @@ const fs = require('fs');
 
 console.log('Seeding neo4j.csv...');
 
-const endPath = 'database/csv/neo4jRelated1.csv';
+const endPath = 'database/csv/neo4jRelated.csv';
 
 try {
   if (fs.existsSync(endPath)) {
@@ -41,7 +41,6 @@ const createNode = () => {
   obj.price = faker.commerce.price();
   obj.image1 = s3Images[Math.floor(Math.random() * numImgs)];
   obj.image2 = s3Images[Math.floor(Math.random() * numImgs)];
-  obj.image3 = s3Images[Math.floor(Math.random() * numImgs)];
   return obj;
 }
 
@@ -50,16 +49,17 @@ const createNode = () => {
 const neo4jWrite = fs.createWriteStream(endPath);
 // WRITE THE HEADERS
 neo4jWrite.write('id,name,rating,numRatings,prime,price,image,type\n', 'utf8');
+// neo4jWrite.write('id,numRating\n', 'utf8');
 
 /*      LOOP OF DEATH      */
 
   let i = 1;
   let type = 1;
   (async () => {
-    while (i <= 1000000) {
+    while (i <= 10000000) {
       //RANDOM NODE
       const obj = createNode();
-      if (!neo4jWrite.write(`${i},${obj.name},${obj.rating},${obj.numRatings},${obj.prime},${obj.price},${obj.image1}|${obj.image2}|${obj.image3},${type}\n`,'utf8')) {
+      if (!neo4jWrite.write(`${i},${obj.name},${obj.rating},${obj.numRatings},${obj.prime},${obj.price},${obj.image1}|${obj.image2},${type}\n`,'utf8')) {
         await new Promise(resolve => neo4jWrite.once('drain', resolve));
       }
       if (i % 10 === 0) {
@@ -68,6 +68,7 @@ neo4jWrite.write('id,name,rating,numRatings,prime,price,image,type\n', 'utf8');
       if(i % 1_000_000 === 0) {
         console.log(`${i} records written`)
       }
+
       i++;
     }
   })();

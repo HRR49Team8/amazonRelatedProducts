@@ -37,22 +37,6 @@ app.get('/api/relatedProducts/all/:id', (req, res) => {
   //   console.log('error in api call');
   //   res.send('error getting data');
   // });
-
-  // postgres.selectPostgres((err, result) => {
-  //   err ? res.send(err) : res.send(result);
-  // });
-
-  // const range = [0, 100];
-  // neoDriver.session
-  //   .run(`MATCH (p:Product) WHERE p.id > ${range[0]} and p.id < ${range[1]} RETURN p`)
-  //   .then(result => {
-  //     let allResults = [];
-  //     result.records.forEach(record => {
-  //       allResults.push(record._fields[0].properties);
-  //     })
-  //     res.send(allResults);
-  //   })
-  //   .catch((err) => console.log(err));
     neoDriver.session
     .run(`MATCH (p:Product {id:${req.params.id}})--(RELATED)
     RETURN RELATED`)
@@ -85,10 +69,10 @@ app.get('/api/relatedProducts', (req, res) => {
 
   /*         NEO4J          */
   } else if (req.query.database === 'neo4j') {
-    const range = 10000;
+    const id = 10_000_001;
 
     neoDriver.session
-      .run(`MATCH (p:Product) WHERE p.id = ${range} RETURN p`)
+      .run(`MATCH (p:Product) WHERE p.id = ${id} RETURN p`)
       .then(result => {
         let allResults = [];
         result.records.forEach(record => {
@@ -113,12 +97,13 @@ app.post('/api/relatedProducts', (req, res) => {
   /*        FAKE DATA       */
   var obj = {
     name: 'bob',
-    product_id: 10000001,
+    id: 10_000_001,
     rating: 5,
     numRatings: 706,
     prime: true,
     price: 427.00,
-    images: ['https://fec-related-items.s3-us-west-2.amazonaws.com/bars/19.jpg', 'https://fec-related-items.s3-us-west-2.amazonaws.com/bars/19.jpg', 'https://fec-related-items.s3-us-west-2.amazonaws.com/bars/19.jpg'],
+    type: 1_000_000,
+    images: ['https://fec-related-items.s3-us-west-2.amazonaws.com/bars/19.jpg', 'https://fec-related-items.s3-us-west-2.amazonaws.com/bars/19.jpg'],
   }
   const productArr = ['bob', 5, 706, true, 427];
   const imageArr = [
@@ -147,13 +132,14 @@ app.post('/api/relatedProducts', (req, res) => {
   /*        NEO4J       */
   } else if (req.query.database === 'neo4j') {
     neoDriver.session
-      .run(`CREATE (p:Product {name: $name, product_id: $product_id, rating: $rating, numRatings: $numRatings, prime: $prime, price: $price, images: $images}) RETURN p`, {
+      .run(`CREATE (p1:Product {name: $name, id: toInteger($id), rating: toInteger($rating), numRatings: toInteger($numRatings), prime: toBoolean($prime), price: toInteger($price), images: $images, type: toInteger($type)}) WITH p1 MATCH (p2:Product {type: toInteger($type)}) WHERE p1.id <> p2.id MERGE (p1)-[:RELATED]-(p2) RETURN p1`, {
         name: obj.name,
-        product_id: obj.product_id,
+        id: obj.id,
         rating: obj.rating,
         numRatings: obj.numRatings,
         prime: obj.prime,
         price: obj.price,
+        type: obj.type,
         images: obj.images,
       })
       .then(result => {
@@ -200,7 +186,7 @@ app.put('/api/relatedProducts', (req, res) => {
   } else if (req.query.database === 'neo4j') {
     const newPrice = 14.00;
     neoDriver.session
-      .run(`MATCH (p:product {product_id: $product_id}) SET p.price = toFloat(${newPrice}) RETURN p`, {product_id: 10000001})
+      .run(`MATCH (p:product {id: toInteger($id)}) SET p.price = toFloat(${newPrice}) RETURN p`, {id: 10_000_001})
       .then(result => {
         res.json(result.records[0]._fields[0].properties);
       })
@@ -231,11 +217,11 @@ app.delete('/api/relatedProducts', (req, res) => {
 
   /*        NEO4J          */
   } else if (req.query.database === 'neo4j') {
-    const id = 10000001;
+    const id = 10_000_001;
     neoDriver.session
-    .run('MATCH(n:product {product_id: $product_id}) DETACH DELETE n', {product_id: id})
+    .run('MATCH(n:Product {id: $id}) DETACH DELETE n', {id: id})
     .then(result => {
-      res.end(`product_id: ${id} DELETED`)
+      res.end(`id: ${id} DELETED`)
     })
     .catch((err) => console.log(err));
   } else {
