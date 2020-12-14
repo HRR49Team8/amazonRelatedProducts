@@ -7,3 +7,4 @@ database/csv
 newrelic.js
 newrelic_agent.log
 .DS_Store
+SDC-Database.pem
